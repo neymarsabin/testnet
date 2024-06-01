@@ -1,0 +1,11 @@
+# testnet.timer
+
+[Unit]
+Description=testnet timer
+
+[Timer]
+OnUnitActiveSec=100s
+OnBootSec=10s
+
+[Install]
+WantedBy=timers.target

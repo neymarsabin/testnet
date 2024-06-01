@@ -22,7 +22,7 @@ func SpeedDetails() int {
 
 	err := chromedp.Run(ctx,
 		chromedp.Navigate("https://fast.com"),
-		chromedp.Sleep(10*time.Second), // wait for 5 seconds
+		chromedp.Sleep(10*time.Second),
 		chromedp.InnerHTML("#speed-value", &speedValue),
 	)
 

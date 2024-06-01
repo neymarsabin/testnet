@@ -1,0 +1,11 @@
+# testnet.service
+
+[Unit]
+Description=Testnet service daemon with logs
+
+[Service]
+Type=simple
+ExecStart=%h/projects/oss/testnet/testnet
+
+[Install]
+WantedBy=default.target
