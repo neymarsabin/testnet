@@ -1,29 +1,51 @@
 package main
 
 import (
-	"fmt"
-	colly "github.com/gocolly/colly"
+	"context"
+	"log"
+	"strconv"
 	"time"
+
+	"github.com/chromedp/chromedp"
 )
 
 type Speed struct {
 	value     int
-	timestamp time.Time
+	timestamp int64
+}
+
+func SpeedDetails() int {
+	ctx, cancel := chromedp.NewContext(context.Background())
+	defer cancel()
+
+	var speedValue string
+
+	err := chromedp.Run(ctx,
+		chromedp.Navigate("https://fast.com"),
+		chromedp.Sleep(10*time.Second), // wait for 5 seconds
+		chromedp.InnerHTML("#speed-value", &speedValue),
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// speedValue is returned as string, so need to convert this to int
+	speedValueInt, err := strconv.Atoi(speedValue)
+
+	if err != nil {
+		log.Fatal("Error while converting: ", speedValueInt)
+	}
+
+	return speedValueInt
 }
 
 func main() {
-	fmt.Println("Hello world")
+	var speedUnit Speed
+	var speedUnitInt = SpeedDetails()
 
-	c := colly.NewCollector()
+	speedUnit.value = speedUnitInt
+	speedUnit.timestamp = time.Now().Unix()
 
-	// Find and visit all links
-	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-		e.Request.Visit(e.Attr("href"))
-	})
-
-	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL)
-	})
-
-	c.Visit("http://go-colly.org/")
+	log.Printf("Speed Value at: %v is %d Mbps", time.Unix(speedUnit.timestamp, 0), speedUnit.value)
 }
