@@ -1,7 +1,7 @@
 # testnet.service
 
 [Unit]
-Description=Testnet service daemon with logs
+Description=Testnet service daemon with logs for journalctl
 
 [Service]
 Type=simple

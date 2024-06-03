@@ -15,10 +15,10 @@ type Speed struct {
 }
 
 func SpeedDetails() int {
+	var speedValue string
+
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
-
-	var speedValue string
 
 	err := chromedp.Run(ctx,
 		chromedp.Navigate("https://fast.com"),
@@ -31,21 +31,22 @@ func SpeedDetails() int {
 	}
 
 	// speedValue is returned as string, so need to convert this to int
-	speedValueInt, err := strconv.Atoi(speedValue)
+	speed, err := strconv.Atoi(speedValue)
 
 	if err != nil {
-		log.Fatal("Error while converting: ", speedValueInt)
+		log.Fatal("Error while converting: ", speed)
 	}
 
-	return speedValueInt
+	return speed
 }
 
 func main() {
 	var speedUnit Speed
 	var speedUnitInt = SpeedDetails()
+	isp := IspDetails()
+	log.Printf("Name is: %v, Timezone is: %v", isp.Name, isp.Timezone)
 
 	speedUnit.value = speedUnitInt
 	speedUnit.timestamp = time.Now().Unix()
-
 	log.Printf("Speed Value at: %v is %d Mbps", time.Unix(speedUnit.timestamp, 0), speedUnit.value)
 }
