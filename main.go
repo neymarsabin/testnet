@@ -1,3 +1,9 @@
+// author: neymarsabin
+// IspInfo: settings banaune -> API key dine/user based
+// yo binary le chai tyo API key use garera every minute ko data chai server lai pathaidinxa
+// server ko data lai chai open-data handine
+// send the speed value to the server, http post request with Ispinfo's provided API key
+
 package main
 
 import (
@@ -30,7 +36,6 @@ func SpeedDetails() int {
 		log.Fatal(err)
 	}
 
-	// speedValue is returned as string, so need to convert this to int
 	speed, err := strconv.Atoi(speedValue)
 
 	if err != nil {
@@ -41,12 +46,14 @@ func SpeedDetails() int {
 }
 
 func main() {
-	var speedUnit Speed
-	var speedUnitInt = SpeedDetails()
-	isp := IspDetails()
-	log.Printf("Name is: %v, Timezone is: %v", isp.Name, isp.Timezone)
+	for range time.Tick(time.Second * 60) {
+		var speedUnit Speed
+		var speedUnitInt = SpeedDetails()
+		isp := IspDetails()
+		log.Printf("Name is: %v, Timezone is: %v", isp.Name, isp.Timezone)
 
-	speedUnit.value = speedUnitInt
-	speedUnit.timestamp = time.Now().Unix()
-	log.Printf("Speed Value at: %v is %d Mbps", time.Unix(speedUnit.timestamp, 0), speedUnit.value)
+		speedUnit.value = speedUnitInt
+		speedUnit.timestamp = time.Now().Unix()
+		log.Printf("Speed Value at: %v is %d Mbps", time.Unix(speedUnit.timestamp, 0), speedUnit.value)
+	}
 }
