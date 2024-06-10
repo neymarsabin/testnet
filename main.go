@@ -14,6 +14,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -75,15 +76,18 @@ func saveToDatabase(speed Speed, isp IspInfo) error {
 }
 
 func main() {
-	err := godotenv.Load()
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatal("Cannot get current directory")
+	}
+
+	err = godotenv.Load(filepath.Join(pwd, ".env"))
 
 	if err != nil {
 		log.Fatal("Error while loading envs")
 	}
 
 	for range time.Tick(time.Second * 120) {
-		fmt.Println("OS ENVS: ", os.Getenv("ISP_INFO_APP_URL"))
-
 		var speedUnit Speed
 		var speedUnitInt = SpeedDetails()
 		isp := IspDetails()

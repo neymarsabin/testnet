@@ -5,6 +5,7 @@ Description=Testnet service daemon with logs for journalctl
 
 [Service]
 Type=simple
+WorkingDirectory=%h/projects/oss/testnet
 ExecStart=%h/projects/oss/testnet/testnet
 
 [Install]
