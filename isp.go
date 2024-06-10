@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 )
 
 type IspInfo struct {
@@ -12,11 +13,11 @@ type IspInfo struct {
 }
 
 const IP_INFO_URL = "http://ip-api.com/json"
-const ISP_INFO_APP_URL = "http://localhost:8000/api/v1/fastness"
 
 func IspDetails() IspInfo {
 	var isp IspInfo
-	resp, err := http.Get(IP_INFO_URL)
+	ISP_INFO_URL := os.Getenv("ISP_INFO_URL")
+	resp, err := http.Get(ISP_INFO_URL)
 
 	if err != nil {
 		log.Println("Error while requesting ", IP_INFO_URL, " ", err)
