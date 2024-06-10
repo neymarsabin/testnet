@@ -7,8 +7,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"log"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -28,12 +31,12 @@ func SpeedDetails() int {
 
 	err := chromedp.Run(ctx,
 		chromedp.Navigate("https://fast.com"),
-		chromedp.Sleep(10*time.Second),
+		chromedp.Sleep(20*time.Second),
 		chromedp.InnerHTML("#speed-value", &speedValue),
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Error while running fast.com with chrome: ", err)
 	}
 
 	speed, err := strconv.Atoi(speedValue)
@@ -45,15 +48,41 @@ func SpeedDetails() int {
 	return speed
 }
 
+func saveToDatabase(speed Speed, isp IspInfo) error {
+	type postBody map[string]interface{}
+	body := postBody{
+		"speed":     speed.value,
+		"timezone":  isp.Timezone,
+		"ispName":   isp.Name,
+		"timestamp": speed.timestamp,
+	}
+
+	reqBodyBytes := new(bytes.Buffer)
+	json.NewEncoder(reqBodyBytes).Encode(body)
+
+	_, err := http.Post(ISP_INFO_APP_URL, "application/json", bytes.NewBuffer(reqBodyBytes.Bytes()))
+
+	if err != nil {
+		log.Fatal("Error while saving speed to database", err)
+		return err
+	}
+
+	return nil
+}
+
 func main() {
-	for range time.Tick(time.Second * 60) {
+	for range time.Tick(time.Second * 300) {
 		var speedUnit Speed
 		var speedUnitInt = SpeedDetails()
 		isp := IspDetails()
-		log.Printf("Name is: %v, Timezone is: %v", isp.Name, isp.Timezone)
 
 		speedUnit.value = speedUnitInt
 		speedUnit.timestamp = time.Now().Unix()
-		log.Printf("Speed Value at: %v is %d Mbps", time.Unix(speedUnit.timestamp, 0), speedUnit.value)
+
+		// save to Database
+		err := saveToDatabase(speedUnit, isp)
+		if err != nil {
+			log.Fatal("Error while saving to database: ", err)
+		}
 	}
 }
