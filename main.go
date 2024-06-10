@@ -7,73 +7,12 @@
 package main
 
 import (
-	"bytes"
-	"context"
-	"encoding/json"
-	"fmt"
+	"github.com/joho/godotenv"
 	"log"
-	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"time"
-
-	"github.com/chromedp/chromedp"
-	"github.com/joho/godotenv"
 )
-
-type Speed struct {
-	value     int
-	timestamp int64
-}
-
-func SpeedDetails() int {
-	var speedValue string
-
-	ctx, cancel := chromedp.NewContext(context.Background())
-	defer cancel()
-
-	err := chromedp.Run(ctx,
-		chromedp.Navigate("https://fast.com"),
-		chromedp.Sleep(20*time.Second),
-		chromedp.InnerHTML("#speed-value", &speedValue),
-	)
-
-	if err != nil {
-		log.Fatal("Error while running fast.com with chrome: ", err)
-	}
-
-	speed, err := strconv.Atoi(speedValue)
-
-	if err != nil {
-		log.Fatal("Error while converting: ", speed)
-	}
-
-	return speed
-}
-
-func saveToDatabase(speed Speed, isp IspInfo) error {
-	type postBody map[string]interface{}
-	ISP_INFO_APP_URL := os.Getenv("ISP_INFO_APP_URL")
-	body := postBody{
-		"speed":     speed.value,
-		"timezone":  isp.Timezone,
-		"ispName":   isp.Name,
-		"timestamp": speed.timestamp,
-	}
-
-	reqBodyBytes := new(bytes.Buffer)
-	json.NewEncoder(reqBodyBytes).Encode(body)
-
-	_, err := http.Post(ISP_INFO_APP_URL, "application/json", bytes.NewBuffer(reqBodyBytes.Bytes()))
-
-	if err != nil {
-		log.Fatal("Error while saving speed to database", err)
-		return err
-	}
-
-	return nil
-}
 
 func main() {
 	pwd, err := os.Getwd()
@@ -87,7 +26,7 @@ func main() {
 		log.Fatal("Error while loading envs")
 	}
 
-	for range time.Tick(time.Second * 120) {
+	for range time.Tick(time.Second * 180) {
 		var speedUnit Speed
 		var speedUnitInt = SpeedDetails()
 		isp := IspDetails()
